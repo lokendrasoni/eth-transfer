@@ -9,8 +9,8 @@ input {
 
 button {
   display: block;
-  width: 8em;
-  height: 2em;
+  min-width: 8em;
+  min-height: 2em;
   border: 1px solid black;
   border-radius: 5px;
   cursor: pointer;
