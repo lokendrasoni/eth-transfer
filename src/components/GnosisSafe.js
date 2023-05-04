@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef } from 'react';
 import Store from '../common/Store';
 import { useNavigate } from 'react-router-dom';
-import { Contract, ethers } from 'ethers';
+import { Contract, ethers, AbiCoder } from 'ethers';
 import erc20Abi from "../abi/ERC20.json";
 import gnosisAbi from "../abi/Gnosis.json";
 import { EthersAdapter } from 'contract-proxy-kit';
@@ -50,8 +50,10 @@ export default function GnosisSafe() {
             }
             const acc_address = await signer.getAddress();
 
+            const temp_ethers = { ...ethers, utils: { defaultAbiCoder: AbiCoder.defaultAbiCoder() } };
+
             const ethLibAdapter = new EthersAdapter({
-                ethers,
+                ethers: temp_ethers,
                 signer: signer
             });
 
@@ -59,7 +61,7 @@ export default function GnosisSafe() {
                 { type: 'uint256', value: acc_address }, // r
                 { type: 'uint256', value: 0 }, // s
                 { type: 'uint8', value: 1 } // v
-              );
+            );
 
             const val = Number(value.current.value) * Math.pow(10, Number(decimal));
             const data = erc20_contract.interface.encodeFunctionData("transfer", [address.current.value, val]);
