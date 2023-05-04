@@ -2,7 +2,8 @@ import { Contract } from 'ethers';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import Store from '../common/Store';
 import { useNavigate } from 'react-router-dom';
-import abi from "../abi.json";
+import abi from "../abi/ERC20.json";
+import Transactions from "./Transactions";
 
 export default function Erc20Transfer() {
   const [receipts, setReceipts] = useState([]);
@@ -22,18 +23,25 @@ export default function Erc20Transfer() {
     e.preventDefault();
     if (!address.current.value) {
       addMessage(`Please provide an address`);
+      return;
     }
     if (!value.current.value) {
       addMessage(`Please provide the value to send`);
+      return;
     }
     if (!token.current.value) {
       addMessage(`Please provide the ERC20 token`);
+      return;
     }
 
-    const val = Number(value.current.value);
-
     try {
-      const contract = new Contract(token.current.value, abi, signer)
+      const contract = new Contract(token.current.value, abi, signer);
+      const decimal = await contract.decimals();
+      if (!decimal) {
+        addMessage(`No decimal found. The token provided does not seem to be a valid ERC20 token.`);
+        return;
+      }
+      const val = Number(value.current.value) * Number(decimal);
       const tx = await contract.transfer(address.current.value, val);
 
       const receipt = await tx.wait();
@@ -57,38 +65,7 @@ export default function Erc20Transfer() {
         <input ref={value} type='text' placeholder='Amount' />
         <button type='submit'>Send</button>
       </form>
-
-      {
-        receipts.length ?
-          <>
-            <h2>Receipts (Will be cleared on reload)</h2>
-            <table border={"black"}>
-              <thead>
-                <tr>
-                  <th>Transaction Hash</th>
-                  <th>From</th>
-                  <th>To</th>
-                  <th>Gas used</th>
-                </tr>
-              </thead>
-              <tbody>
-                {
-                  receipts.map((receipt, i) => {
-                    return (
-                      <tr key={i}>
-                        <th>{receipt.hash}</th>
-                        <td>{receipt.from}</td>
-                        <td>{receipt.to}</td>
-                        <td>{parseInt(receipt.gasUsed)}</td>
-                      </tr>
-                    );
-                  })
-                }
-              </tbody>
-            </table>
-          </>
-          : ""
-      }
+      <Transactions receipts={receipts}/>
     </center>
   )
 }

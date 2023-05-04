@@ -15,7 +15,8 @@ export default function Options() {
   return (
     <center>
       <button onClick={() => navigate("/eth-transfer")} style={{ marginBottom: "2rem" }}>ETH Transfer</button>
-      <button onClick={() => navigate("/erc20-transfer")}>ERC20 Transfer</button>
+      <button onClick={() => navigate("/erc20-transfer")} style={{ marginBottom: "2rem" }}>ERC20 Transfer</button>
+      <button onClick={() => navigate("/gnosis-safe-transfer")}>Gnosis Transfer</button>
     </center>
   )
 }
